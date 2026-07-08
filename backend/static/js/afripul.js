@@ -359,12 +359,18 @@
             window.open('https://wa.me/22890000000?text=Bonjour%20AFRIPUL%2C%20je%20souhaite%20passer%20une%20commande.', '_blank');
         });
         
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCart(); });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeCart();
+                closeChat();
+            }
+        });
         
         // =====================================================
         // 9. CHAT BOT avec ENVOI D'EMAIL
         // =====================================================
         const chatWindow = document.getElementById('chatWindow');
+        const chatOverlay = document.getElementById('chatOverlay');
         const chatMessages = document.getElementById('chatMessages');
         const chatInput = document.getElementById('chatInput');
         const chatSendBtn = document.getElementById('chatSendBtn');
@@ -376,15 +382,20 @@
         
         function openChat() {
             chatWindow.classList.add('open');
+            chatOverlay.classList.add('active');
             chatBotBtn.style.display = 'none';
+            document.body.style.overflow = 'hidden';
             chatInput.focus();
         }
         function closeChat() {
             chatWindow.classList.remove('open');
+            chatOverlay.classList.remove('active');
             chatBotBtn.style.display = 'flex';
+            document.body.style.overflow = '';
         }
         chatBotBtn.addEventListener('click', openChat);
         closeChatBtn.addEventListener('click', closeChat);
+        chatOverlay.addEventListener('click', closeChat);
         
         function addChatMessage(type, text) {
             const div = document.createElement('div');

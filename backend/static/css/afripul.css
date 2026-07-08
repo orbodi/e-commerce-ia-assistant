@@ -406,6 +406,20 @@
         .product .actions .wish:hover { background: #f0f2f2; }
         
         /* CHAT BOT */
+        .chat-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(2px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            z-index: 1998;
+        }
+        .chat-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
         .chat-bot-btn {
             position: fixed;
             bottom: 24px;
@@ -420,7 +434,7 @@
             box-shadow: 0 8px 30px rgba(0,0,0,0.2);
             cursor: pointer;
             transition: 0.3s;
-            z-index: 999;
+            z-index: 1999;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -428,15 +442,15 @@
         .chat-bot-btn:hover { transform: scale(1.08); }
         .chat-window {
             position: fixed;
-            bottom: 100px;
+            bottom: 24px;
             right: 24px;
-            width: 400px;
-            max-width: 92vw;
-            height: 520px;
+            width: min(400px, calc(100vw - 48px));
+            height: min(520px, calc(100dvh - 48px));
+            max-height: calc(100dvh - 48px);
             background: #fff;
             border-radius: 16px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-            z-index: 1000;
+            z-index: 1999;
             display: none;
             flex-direction: column;
             overflow: hidden;
@@ -451,30 +465,48 @@
         .chat-header {
             background: #131921;
             color: #fff;
-            padding: 14px 18px;
+            padding: 12px 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 12px;
+            flex-shrink: 0;
         }
         .chat-header h3 {
-            font-size: 1rem;
+            font-size: 0.95rem;
             display: flex;
             align-items: center;
             gap: 8px;
+            min-width: 0;
+            flex: 1;
         }
         .chat-header h3 i { color: #febd69; }
         .chat-header .close {
-            background: transparent;
+            background: rgba(255, 255, 255, 0.08);
             border: none;
             color: #fff;
             font-size: 1.2rem;
             cursor: pointer;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+        .chat-header .close:hover {
+            background: rgba(255, 255, 255, 0.18);
         }
         .chat-messages {
             flex: 1;
+            min-height: 0;
             padding: 16px;
             overflow-y: auto;
             background: #f0f2f2;
+            display: flex;
+            flex-direction: column;
         }
         .chat-messages::-webkit-scrollbar { width: 4px; }
         .chat-messages::-webkit-scrollbar-thumb { background: #d5d9dd; border-radius: 20px; }
@@ -526,6 +558,7 @@
             display: flex;
             gap: 8px;
             background: #fff;
+            flex-shrink: 0;
         }
         .chat-input input {
             flex: 1;
@@ -796,7 +829,14 @@
             .grid { grid-template-columns: repeat(auto-fill, minmax(170px,1fr)); gap: 14px; }
             .cart-sidebar { width: 100%; right: -100%; padding: 16px; }
             .whatsapp-btn span { display: none; }
-            .chat-window { width: 94vw; right: 3vw; bottom: 90px; height: 440px; }
+            .chat-window {
+                left: 12px;
+                right: 12px;
+                width: auto;
+                bottom: 12px;
+                height: min(480px, calc(100dvh - 24px));
+                max-height: calc(100dvh - 24px);
+            }
             .chat-bot-btn { width: 54px; height: 54px; font-size: 1.5rem; bottom: 16px; right: 16px; }
         }
         @media (max-width: 480px) {
