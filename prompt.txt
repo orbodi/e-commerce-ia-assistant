@@ -1,0 +1,296 @@
+Résumé du projet : Assistant IA de support e-commerce (Local)
+Objectif
+
+Développer un assistant IA de support e-commerce fonctionnant entièrement en local, capable d'interagir avec les clients via un chatbot.
+
+L'assistant devra comprendre les demandes en langage naturel, interagir avec la base de données de la boutique et effectuer des actions comme :
+
+Vérifier la disponibilité d'un produit
+Rechercher un produit même si son nom est approximatif
+Créer une commande
+Suivre une commande
+Répondre aux questions générales
+Demander des précisions lorsque nécessaire
+
+L'objectif est de construire une V1 simple, propre et évolutive.
+
+Architecture
+                Client
+                   │
+         Interface Web Django
+      (HTML + Bootstrap + JavaScript)
+                   │
+             Django Views
+                   │
+             Chat Service
+                   │
+          Ollama Service
+                   │
+        Ollama (Qwen3:4b)
+                   │
+        Détection d'intention
+                   │
+          Business Services
+                   │
+             PostgreSQL
+Technologies
+Backend
+Django 5
+Python 3.12
+PostgreSQL
+Frontend
+Django Templates
+Bootstrap 5
+JavaScript (Vanilla JS)
+Intelligence Artificielle
+Ollama
+Qwen3:4b
+Conteneurisation
+Docker
+Docker Compose
+Philosophie du projet
+
+Le modèle IA ne prend jamais de décisions métier.
+
+Il est uniquement responsable de :
+
+comprendre le message du client ;
+identifier son intention ;
+extraire les informations importantes.
+
+Toute la logique métier reste dans Django.
+
+Rôle de l'IA
+
+Par exemple :
+
+Client :
+
+Je voudrais deux Samsung S25.
+
+L'IA renvoie uniquement :
+
+{
+    "intent":"create_order",
+    "entities":{
+        "product":"Samsung S25",
+        "quantity":2
+    }
+}
+
+Ensuite Django :
+
+recherche le produit ;
+vérifie le stock ;
+crée la commande ;
+enregistre les données ;
+construit la réponse.
+Fonctionnalités de la V1
+Produits
+Recherche de produits
+Recherche avec nom incomplet
+Recherche avec fautes de frappe
+Vérification du stock
+Commandes
+Création d'une commande
+Consultation d'une commande
+Suivi de commande
+Chatbot
+Compréhension du langage naturel
+Détection des intentions
+Gestion des conversations
+Réponses naturelles
+Intentions reconnues
+
+Le modèle doit reconnaître :
+
+greeting
+
+search_product
+
+check_stock
+
+create_order
+
+track_order
+
+unknown
+Structure du projet
+ecommerce-ai/
+
+backend/
+
+│
+├── config/
+│
+├── apps/
+│
+│   ├── ai/
+│   ├── shop/
+│   └── core/
+│
+├── services/
+│
+├── templates/
+│
+├── static/
+│
+├── media/
+│
+├── manage.py
+│
+└── requirements.txt
+
+docker/
+
+docker-compose.yml
+
+README.md
+Les applications Django
+core
+
+Gestion :
+
+configuration
+utilisateurs
+éléments communs
+shop
+
+Gestion :
+
+produits
+catégories
+stock
+commandes
+ai
+
+Gestion :
+
+communication avec Ollama
+prompts
+analyse des intentions
+génération des réponses
+Les services
+
+Toute la logique métier sera placée dans des services.
+
+services/
+
+chat_service.py
+
+ollama_service.py
+
+product_service.py
+
+order_service.py
+
+Les vues Django resteront très simples.
+
+Workflow
+Client
+
+↓
+
+Écrit un message
+
+↓
+
+Django
+
+↓
+
+Ollama
+
+↓
+
+Détection d'intention
+
+↓
+
+ChatService
+
+↓
+
+ProductService
+
+↓
+
+OrderService
+
+↓
+
+Base PostgreSQL
+
+↓
+
+Réponse
+
+↓
+
+Client
+Communication avec Ollama
+
+Le backend communiquera avec Ollama via son API HTTP locale.
+
+POST http://ollama:11434/api/chat
+
+Aucune commande shell ne sera utilisée.
+
+Base de données
+
+Principales tables :
+
+Product
+nom
+description
+prix
+stock
+Order
+client
+statut
+date
+OrderItem
+produit
+quantité
+Conversation
+utilisateur
+date
+Message
+conversation
+rôle (user/assistant)
+contenu
+Interface utilisateur
+
+Une seule page dans la V1.
+
+Elle comportera :
+
+historique des messages ;
+champ de saisie ;
+bouton Envoyer ;
+indicateur de chargement.
+
+Le design sera réalisé avec Bootstrap 5.
+
+Docker
+
+Le projet sera lancé avec une seule commande :
+
+docker compose up -d
+
+Services :
+
+Django
+PostgreSQL
+Ollama
+
+
+
+Objectif final
+
+Construire un assistant IA e-commerce intelligent, entièrement local, sécurisé et extensible, où :
+
+Ollama (Qwen3:4b) comprend les demandes des utilisateurs et extrait les intentions.
+Django exécute toute la logique métier, interagit avec PostgreSQL et garantit la cohérence des données.
+Bootstrap + JavaScript offrent une interface de chat simple, réactive et facile à maintenir.
+Docker Compose permet de lancer tout l'environnement avec une seule commande.

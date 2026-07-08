@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: afripul
+      POSTGRES_USER: afripul
+      POSTGRES_PASSWORD: afripul
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U afripul -d afripul"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_DEBUG: "true"
+      DJANGO_SECRET_KEY: dev-secret-key-change-me
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,web
+      POSTGRES_DB: afripul
+      POSTGRES_USER: afripul
+      POSTGRES_PASSWORD: afripul
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+
+volumes:
+  postgres_data:

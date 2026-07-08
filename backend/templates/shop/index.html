@@ -1,0 +1,182 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AFRIPUL - Informatique & High-Tech</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="{% static 'css/afripul.css' %}" />
+</head>
+<body>
+
+    <header>
+        <div class="container header-flex">
+            <a href="{% url 'shop_index' %}" class="logo"><i class="fas fa-microchip"></i> AFRI<span>PUL</span></a>
+            <div class="search">
+                <input type="text" id="search" placeholder="Rechercher un produit informatique..." />
+                <button id="searchBtn" type="button"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="actions">
+                <button id="wishlistBtn" type="button"><i class="far fa-heart"></i></button>
+                <button class="cart-btn" id="openCartBtn" type="button">
+                    <i class="fas fa-shopping-cart"></i> Panier
+                    <span class="badge-count" id="cartCount">0</span>
+                </button>
+                <button class="whatsapp-btn" id="whatsappBtn" type="button"><i class="fab fa-whatsapp"></i> <span>WhatsApp</span></button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="hero-carousel" id="heroCarousel">
+            <div class="carousel-slide active" style="background-image: url('https://images.unsplash.com/photo-1498049794561-7780e7231661?w=1200&q=80');">
+                <div class="overlay">
+                    <h2>High-Tech <span>Africaine</span></h2>
+                    <p>Les meilleurs ordinateurs, accessoires et gadgets au meilleur prix</p>
+                    <button class="btn" id="heroBtn1" type="button">Découvrir <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+            <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=1200&q=80');">
+                <div class="overlay">
+                    <h2>Promos <span>Informatique</span></h2>
+                    <p>Jusqu'à -40% sur les PC portables et accessoires</p>
+                    <button class="btn" id="heroBtn2" type="button">Voir les offres <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+            <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&q=80');">
+                <div class="overlay">
+                    <h2>Paiement <span>Mobile Money</span></h2>
+                    <p>Flooz, TMoney, carte bancaire ou livraison</p>
+                    <button class="btn" id="heroBtn3" type="button">Commander <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+            <button class="carousel-arrow prev" id="carouselPrev" type="button"><i class="fas fa-chevron-left"></i></button>
+            <button class="carousel-arrow next" id="carouselNext" type="button"><i class="fas fa-chevron-right"></i></button>
+            <div class="carousel-dots" id="carouselDots"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="stats">
+            <div class="stat"><div class="num">{{ categories|length }}+</div><div class="lbl">Catégories</div></div>
+            <div class="stat"><div class="num">98%</div><div class="lbl">Clients satisfaits</div></div>
+            <div class="stat"><div class="num">24h</div><div class="lbl">Livraison express</div></div>
+            <div class="stat"><div class="num">4.8★</div><div class="lbl">Note moyenne</div></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <label><i class="fas fa-tag"></i> Catégorie</label>
+                <select id="category">
+                    <option value="all">Tous</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}">{{ cat|title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label><i class="fas fa-arrow-up-wide-short"></i> Trier</label>
+                <select id="sort">
+                    <option value="default">Pertinence</option>
+                    <option value="price-asc">Prix ↑</option>
+                    <option value="price-desc">Prix ↓</option>
+                    <option value="popular">Popularité</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label><i class="fas fa-sliders"></i> Prix max</label>
+                <input type="number" id="priceMax" placeholder="500000" min="0" />
+            </div>
+            <button class="reset-btn" id="resetBtn" type="button"><i class="fas fa-undo"></i> Réinitialiser</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="section-header">
+            <h2><i class="fas fa-fire"></i> Nouveautés informatique</h2>
+            <a href="#" id="viewAllLink">Voir tout <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="grid" id="productGrid"></div>
+    </div>
+
+    <button class="chat-bot-btn" id="chatBotBtn" type="button"><i class="fas fa-robot"></i></button>
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <h3><i class="fas fa-circle" style="color:#febd69;font-size:0.6rem;"></i> Assistant AFRIPUL</h3>
+            <button class="close" id="closeChatBtn" type="button"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="msg bot">
+                👋 Bonjour ! Je suis l'assistant AFRIPUL.<br>
+                Spécialiste en informatique, je vous aide à trouver le matériel qu'il vous faut.<br>
+                <strong>Quel est votre nom ?</strong>
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="Écrivez votre message..." />
+            <button id="chatSendBtn" type="button"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h2>🛒 Panier <span id="cartItemCount">0</span></h2>
+            <button class="cart-close" id="closeCartBtn" type="button"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="cart-empty"><i class="fas fa-shopping-cart"></i><p>Votre panier est vide</p></div>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-subtotal"><span>Sous-total</span><span id="cartSubtotal">0 FCFA</span></div>
+            <div class="cart-total"><span>Total</span><span id="cartTotal">0 FCFA</span></div>
+            <div class="payment-methods">
+                <span>Flooz</span>
+                <span>TMoney</span>
+                <span>Carte</span>
+                <span>Livraison</span>
+            </div>
+            <div class="cart-actions">
+                <button class="btn-checkout" id="checkoutBtn" type="button"><i class="fas fa-lock"></i> Passer la commande</button>
+                <button class="btn-continue" id="continueBtn" type="button">Continuer mes achats</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"><i class="fas fa-check-circle"></i> <span id="toastMsg">Produit ajouté !</span></div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <h4><i class="fas fa-microchip"></i> AFRIPUL</h4>
+                    <p>Votre spécialiste informatique au Togo. Matériel neuf, garantie et paiement sécurisé.</p>
+                    <div class="social">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div><h4>Liens</h4><p>Accueil<br/>Catalogue<br/>Promotions<br/>Nouveautés</p></div>
+                <div><h4>Services</h4><p>Livraison<br/>Garantie 1 an<br/>SAV<br/>Contact</p></div>
+                <div><h4>Contact</h4><p><i class="fab fa-whatsapp"></i> +228 90 00 00 00<br/><i class="fas fa-envelope"></i> contact@afripul.tg<br/><i class="fas fa-map-marker-alt"></i> Lomé, Togo</p></div>
+            </div>
+            <div class="footer-bottom">&copy; 2026 AFRIPUL - Spécialiste informatique - Tous droits réservés</div>
+        </div>
+    </footer>
+
+    <script>
+        window.PRODUCTS_DATA = {{ products_json|safe }};
+        window.CSRF_TOKEN = '{{ csrf_token }}';
+        window.API_BASE = '';
+    </script>
+    <script src="{% static 'js/afripul.js' %}"></script>
+</body>
+</html>
