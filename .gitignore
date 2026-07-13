@@ -1,0 +1,81 @@
+# Environnement & secrets
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtualenv
+.venv/
+venv/
+ENV/
+env/
+
+# Django
+*.log
+local_settings.py
+backend/db.sqlite3
+backend/db.sqlite3-journal
+backend/staticfiles/
+backend/media/
+
+# Tests & couverture
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# IDE / éditeurs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Docker (volumes locaux)
+postgres_data/
+ollama_data/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# mypy / lint
+.mypy_cache/
+.ruff_cache/
