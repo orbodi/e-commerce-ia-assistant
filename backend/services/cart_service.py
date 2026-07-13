@@ -47,6 +47,22 @@ def update_cart_item(*, session_key: str, product_id: int, quantity_delta: int) 
 
 
 @transaction.atomic
+def set_cart_item_quantity(*, session_key: str, product_id: int, quantity: int) -> dict:
+    """Définit la quantité absolue (0 = retirer du panier)."""
+    cart = get_or_create_cart(session_key)
+    product = Product.objects.get(pk=product_id, is_active=True)
+
+    if quantity <= 0:
+        CartItem.objects.filter(cart=cart, product=product).delete()
+    else:
+        item, _ = CartItem.objects.get_or_create(cart=cart, product=product, defaults={"quantity": quantity})
+        item.quantity = quantity
+        item.save(update_fields=["quantity"])
+
+    return serialize_cart(cart)
+
+
+@transaction.atomic
 def clear_cart(*, session_key: str) -> dict:
     cart = get_or_create_cart(session_key)
     cart.items.all().delete()

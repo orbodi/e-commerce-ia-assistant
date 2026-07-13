@@ -21,6 +21,8 @@ services:
       dockerfile: docker/Dockerfile
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     environment:
       DJANGO_DEBUG: "true"
       DJANGO_SECRET_KEY: dev-secret-key-change-me
@@ -35,6 +37,7 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app
+      - ./.env:/app/.env:ro
 
 volumes:
   postgres_data:

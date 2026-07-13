@@ -367,7 +367,7 @@
         });
         
         // =====================================================
-        // 9. CHAT BOT avec ENVOI D'EMAIL
+        // 9. CHAT BOT (API /api/chat/ + Gemini)
         // =====================================================
         const chatWindow = document.getElementById('chatWindow');
         const chatOverlay = document.getElementById('chatOverlay');
@@ -376,10 +376,7 @@
         const chatSendBtn = document.getElementById('chatSendBtn');
         const chatBotBtn = document.getElementById('chatBotBtn');
         const closeChatBtn = document.getElementById('closeChatBtn');
-        
-        let chatState = 'greeting';
-        let userData = { name: '', email: '', phone: '', address: '', order: '' };
-        
+
         function openChat() {
             chatWindow.classList.add('open');
             chatOverlay.classList.add('active');
@@ -396,7 +393,7 @@
         chatBotBtn.addEventListener('click', openChat);
         closeChatBtn.addEventListener('click', closeChat);
         chatOverlay.addEventListener('click', closeChat);
-        
+
         function addChatMessage(type, text) {
             const div = document.createElement('div');
             div.className = `msg ${type}`;
@@ -404,7 +401,7 @@
             chatMessages.appendChild(div);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-        
+
         function addTypingIndicator() {
             const div = document.createElement('div');
             div.className = 'msg bot';
@@ -417,136 +414,71 @@
             const el = document.getElementById('typingIndicator');
             if (el) el.remove();
         }
-        
-        function sendEmail(data) {
-            // Simulation d'envoi d'email
-            console.log('=== EMAIL ENVOYÉ (Chatbot) ===');
-            console.log('À:', data.email);
-            console.log('Sujet: Nouvelle demande client AFRIPUL');
-            console.log('Corps:\n');
-            console.log(`Bonjour,\n\nUne nouvelle demande a été enregistrée :\n`);
-            console.log(`Client : ${data.name}`);
-            console.log(`Email : ${data.email}`);
-            console.log(`Téléphone : ${data.phone}`);
-            console.log(`Adresse : ${data.address}`);
-            console.log(`Commande : ${data.order}`);
-            console.log(`\nUn agent va prendre en charge cette demande.`);
-            console.log('=== FIN ===');
-        }
-        
-        function processUserMessage(message) {
-            const msg = message.trim();
-            
-            switch(chatState) {
-                case 'greeting':
-                    addChatMessage('user', msg);
-                    addTypingIndicator();
-                    setTimeout(() => {
-                        removeTypingIndicator();
-                        userData.name = msg;
-                        chatState = 'email';
-                        addChatMessage('bot', `Enchanté ${msg} ! 📧<br>Quel est votre adresse email pour recevoir la confirmation ?`);
-                    }, 800);
-                    break;
-                    
-                case 'email':
-                    addChatMessage('user', msg);
-                    addTypingIndicator();
-                    setTimeout(() => {
-                        removeTypingIndicator();
-                        userData.email = msg;
-                        chatState = 'phone';
-                        addChatMessage('bot', `Parfait ! 📱<br>Votre numéro de téléphone pour le suivi ?`);
-                    }, 800);
-                    break;
-                    
-                case 'phone':
-                    addChatMessage('user', msg);
-                    addTypingIndicator();
-                    setTimeout(() => {
-                        removeTypingIndicator();
-                        userData.phone = msg;
-                        chatState = 'address';
-                        addChatMessage('bot', `📍 Quelle est votre adresse de livraison (ville, quartier) ?`);
-                    }, 800);
-                    break;
-                    
-                case 'address':
-                    addChatMessage('user', msg);
-                    addTypingIndicator();
-                    setTimeout(() => {
-                        removeTypingIndicator();
-                        userData.address = msg;
-                        chatState = 'order';
-                        addChatMessage('bot', `🛍️ Quel produit ou matériel informatique recherchez-vous ? (ex: PC portable, souris, etc.)`);
-                    }, 800);
-                    break;
-                    
-                case 'order':
-                    addChatMessage('user', msg);
-                    addTypingIndicator();
-                    setTimeout(() => {
-                        removeTypingIndicator();
-                        userData.order = msg;
-                        chatState = 'done';
-                        
-                        // Envoyer l'email
-                        sendEmail(userData);
-                        
-                        const summary = `
-📦 <strong>RÉCAPITULATIF</strong><br><br>
-👤 <strong>Client :</strong> ${userData.name}<br>
-📧 <strong>Email :</strong> ${userData.email}<br>
-📱 <strong>Téléphone :</strong> ${userData.phone}<br>
-📍 <strong>Adresse :</strong> ${userData.address}<br>
-🛍️ <strong>Demande :</strong> ${userData.order}<br>
-📅 <strong>Date :</strong> ${new Date().toLocaleString()}
-                        `;
-                        addChatMessage('bot', summary);
-                        
-                        setTimeout(() => {
-                            addChatMessage('bot', `✅ <strong>Votre demande a été envoyée à notre équipe !</strong><br><br>
-🔹 Un email de confirmation a été envoyé à <strong>${userData.email}</strong><br>
-🔹 Un agent vous contactera au <strong>${userData.phone}</strong> sous 24h<br>
-🔹 Vous recevrez un lien de suivi par email<br><br>
-Merci d'avoir choisi AFRIPUL ! 🙏`);
-                        }, 1000);
-                        
-                        // Reset after 30s
-                        setTimeout(() => {
-                            chatState = 'greeting';
-                            userData = { name: '', email: '', phone: '', address: '', order: '' };
-                        }, 30000);
-                    }, 1200);
-                    break;
-                    
-                case 'done':
-                    addChatMessage('user', msg);
-                    addChatMessage('bot', `Merci ! 🙏 Un agent vous contactera très prochainement.<br>Pour toute urgence, WhatsApp : +228 90 00 00 00`);
-                    break;
-                    
-                default:
-                    addChatMessage('user', msg);
-                    addChatMessage('bot', `Je suis désolé, je n'ai pas compris. 🫤<br>Pouvez-vous reformuler ?`);
-            }
-        }
-        
-        function sendChatMessage() {
+
+        async function sendChatMessage() {
             const text = chatInput.value.trim();
             if (!text) return;
+
             chatInput.value = '';
-            processUserMessage(text);
+            addChatMessage('user', text);
+            addTypingIndicator();
+            chatSendBtn.disabled = true;
+            chatInput.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/chat/`, {
+                    method: 'POST',
+                    headers: csrfHeaders(),
+                    body: JSON.stringify({
+                        message: text,
+                        session_key: cartSessionKey,
+                    }),
+                });
+
+                let data;
+                try {
+                    data = await res.json();
+                } catch (parseErr) {
+                    removeTypingIndicator();
+                    addChatMessage('bot', 'Le serveur chat n\'est pas à jour. Redémarrez : <code>docker compose restart web</code>');
+                    return;
+                }
+
+                removeTypingIndicator();
+
+                if (!res.ok) {
+                    addChatMessage('bot', data.error || 'Erreur serveur. Réessayez.');
+                    return;
+                }
+
+                addChatMessage('bot', data.reply);
+
+                if (data.actions && data.actions.some(a => a.type === 'cart_updated')) {
+                    await syncCart();
+                    const orderAction = data.actions.find(a => a.type === 'order_created');
+                    if (orderAction) {
+                        showToast(`✅ Commande #${orderAction.order_number} validée !`);
+                    } else {
+                        showToast('Produit(s) ajouté(s) au panier');
+                    }
+                }
+            } catch (e) {
+                removeTypingIndicator();
+                addChatMessage('bot', 'Impossible de contacter l\'assistant. Réessayez dans un instant.');
+            } finally {
+                chatSendBtn.disabled = false;
+                chatInput.disabled = false;
+                chatInput.focus();
+            }
         }
-        
+
         chatSendBtn.addEventListener('click', sendChatMessage);
         chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendChatMessage();
         });
-        
-        // Auto-open after 4s
+
         setTimeout(() => {
             if (!chatWindow.classList.contains('open')) {
-                addChatMessage('bot', '👋 <strong>Besoin d\'aide pour trouver du matériel informatique ?</strong><br>Je suis là pour vous guider !');
                 openChat();
             }
         }, 4000);

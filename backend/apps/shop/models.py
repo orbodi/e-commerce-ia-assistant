@@ -82,6 +82,72 @@ class CartItem(models.Model):
         return f"{self.product.name} x{self.quantity}"
 
 
+class ChatSession(models.Model):
+    """État du dialogue de commande guidée (par session navigateur)."""
+
+    class Step(models.TextChoices):
+        IDLE = "idle", "Inactif"
+        COLLECT_PRODUCTS = "collect_products", "Collecte produits"
+        CUSTOMER_NAME = "customer_name", "Nom client"
+        CUSTOMER_EMAIL = "customer_email", "Email client"
+        CUSTOMER_PHONE = "customer_phone", "Téléphone client"
+        CUSTOMER_ADDRESS = "customer_address", "Adresse client"
+        CONFIRM = "confirm", "Confirmation"
+
+    session_key = models.CharField(max_length=64, unique=True, db_index=True)
+    step = models.CharField(
+        max_length=32, choices=Step.choices, default=Step.IDLE
+    )
+    customer_name = models.CharField(max_length=150, blank=True)
+    customer_email = models.EmailField(blank=True)
+    customer_phone = models.CharField(max_length=30, blank=True)
+    customer_address = models.TextField(blank=True)
+    context = models.JSONField(default=dict, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at"]
+
+    def __str__(self):
+        return f"ChatSession {self.session_key} ({self.step})"
+
+    def reset(self) -> None:
+        self.step = self.Step.IDLE
+        self.customer_name = ""
+        self.customer_email = ""
+        self.customer_phone = ""
+        self.customer_address = ""
+        self.context = {}
+        self.save(
+            update_fields=[
+                "step",
+                "customer_name",
+                "customer_email",
+                "customer_phone",
+                "customer_address",
+                "context",
+                "updated_at",
+            ]
+        )
+
+
+class ChatMessage(models.Model):
+    class Role(models.TextChoices):
+        USER = "user", "Utilisateur"
+        ASSISTANT = "assistant", "Assistant"
+
+    session_key = models.CharField(max_length=64, db_index=True)
+    role = models.CharField(max_length=16, choices=Role.choices)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.role}@{self.session_key}"
+
+
 class Order(models.Model):
     class Status(models.TextChoices):
         PENDING = "pending", "En attente"

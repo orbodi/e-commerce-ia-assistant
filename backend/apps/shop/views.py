@@ -6,9 +6,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
 from services.cart_service import clear_cart, update_cart_item, get_or_create_cart, serialize_cart
+from services.chat_service import process_chat_message
+from services.intent_service import extract_intent_and_entities
 from services.order_service import OrderServiceError, create_order
-from services.product_service import get_all_products, search_products
-from apps.shop.models import Product
+from services.product_service import get_all_products, search_products, search_products_ranked
+from apps.shop.models import Product, Order
 
 
 def index(request):
@@ -112,3 +114,73 @@ def api_cart_clear(request):
         return JsonResponse({"error": str(exc)}, status=400)
 
     return JsonResponse(cart_data)
+
+
+@require_POST
+@csrf_exempt
+def api_chat(request):
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "JSON invalide."}, status=400)
+
+    message = payload.get("message", "")
+    session_key = payload.get("session_key", "")
+
+    if not session_key:
+        return JsonResponse({"error": "session_key requis."}, status=400)
+
+    result = process_chat_message(message=message, session_key=session_key)
+    return JsonResponse(result, json_dumps_params={"ensure_ascii": False})
+
+
+@require_POST
+@csrf_exempt
+def api_ai_parse(request):
+    """Parse un message => intent + entities (+ résolution produits)."""
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "JSON invalide."}, status=400)
+
+    message = payload.get("message", "")
+    data = extract_intent_and_entities(message)
+    intent = data.get("intent", "unknown")
+    entities = data.get("entities") or {}
+
+    resolved_products = []
+    products = entities.get("products")
+    if isinstance(products, list):
+        for p in products:
+            if not isinstance(p, dict):
+                continue
+            q = (p.get("product_query") or "").strip()
+            qty = p.get("quantity", 1)
+            try:
+                qty = max(1, int(qty))
+            except (TypeError, ValueError):
+                qty = 1
+            if not q:
+                continue
+            matches = search_products_ranked(q, limit=3)
+            if matches:
+                top = matches[0]
+                resolved_products.append({**top, "quantity": qty})
+
+    order_number = entities.get("order_number")
+    order_status = None
+    if isinstance(order_number, str) and order_number:
+        order = Order.objects.filter(order_number=order_number).first()
+        if order:
+            order_status = order.status
+
+    return JsonResponse(
+        {
+            "intent": intent,
+            "entities": entities,
+            "products_resolved": resolved_products,
+            "order_status": order_status,
+            "order_number": order_number,
+        },
+        json_dumps_params={"ensure_ascii": False},
+    )
